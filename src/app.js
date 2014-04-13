@@ -2,4 +2,4 @@
 
 var log = require('./helper/log');
 
-log('This is a very informative log message!');
+log('This is a very informative log message [UPDATE]!');
