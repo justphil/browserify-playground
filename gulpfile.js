@@ -1,14 +1,16 @@
 "use strict";
 
-var gulp = require('gulp'),
-    browserify = require('gulp-browserify'),
-    rename = require('gulp-rename'),
-    inject = require('gulp-inject'),
-    clean = require('gulp-clean');
+var gulp        = require('gulp'),
+    browserify  = require('gulp-browserify'),
+    rename      = require('gulp-rename'),
+    inject      = require('gulp-inject'),
+    clean       = require('gulp-clean'),
+    karma       = require('karma').server;
 
 var CONFIG = {
     SRC: './src',
-    DIST: './dist'
+    DIST: './dist',
+    TEST: './test'
 };
 
 /**
@@ -16,7 +18,7 @@ var CONFIG = {
  * Default Task
  *
  */
-gulp.task('default', ['clean', 'watch']);
+gulp.task('default', ['bundle-scripts']);
 
 /**
  *
@@ -30,10 +32,10 @@ gulp.task('clean', function () {
 
 /**
  *
- * Several helper tasks
+ * Task to bundle the js files using browserify
  *
  */
-gulp.task('bundle-scripts', function () {
+gulp.task('bundle-scripts', ['clean'], function () {
     var browserifyBundle = gulp.src(CONFIG.SRC + '/app.js')
         .pipe(browserify())
         .pipe(gulp.dest(CONFIG.DIST))
@@ -49,5 +51,40 @@ gulp.task('watch', ['bundle-scripts'], function () {
     var watcher = gulp.watch(CONFIG.SRC + '/**/*.js', ['bundle-scripts']);
     watcher.on('change', function (event) {
         console.log('File ' + event.path + ' was ' + event.type + ', building scripts...');
+    });
+});
+
+/**
+ *
+ * Test Task
+ *
+ */
+
+// load karma.conf.js if available, if not use a simple fallback config
+var karmaConfigHolder = {};
+karmaConfigHolder.set = function(karmaConfig) {
+    karmaConfigHolder.karmaConfig = karmaConfig;
+};
+
+try {
+    require('./karma.conf.js')(karmaConfigHolder);
+} catch (e) {
+    var testFiles = CONFIG.TEST + '/**/*.js';
+
+    karmaConfigHolder.karmaConfig = {
+        browsers: ['Chrome'],
+        files: [testFiles],
+        frameworks: ['jasmine', 'browserify'],
+        preprocessors: {},
+        singleRun: true
+    };
+
+    karmaConfigHolder.karmaConfig.preprocessors[testFiles] = ['browserify'];
+}
+
+gulp.task('test', function () {
+    karma.start(karmaConfigHolder.karmaConfig, function (exitCode) {
+        console.log('Karma has exited with ' + exitCode);
+        process.exit(exitCode);
     });
 });
