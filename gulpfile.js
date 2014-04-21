@@ -9,9 +9,10 @@ var gulp        = require('gulp'),
     karma       = require('karma').server;
 
 var CONFIG = {
+    ENTRY_POINT: './src/app.js',
     SRC: './src',
     DIST: './dist',
-    TEST: './test'
+    DEV: './dev'
 };
 
 /**
@@ -37,7 +38,7 @@ gulp.task('clean', function () {
  *
  */
 gulp.task('bundle-scripts', ['clean'], function () {
-    var browserifyBundle = browserify(CONFIG.SRC + '/app.js').bundle()
+    var browserifyBundle = browserify(CONFIG.ENTRY_POINT).bundle()
         .pipe(source('app.js'))
         .pipe(gulp.dest(CONFIG.DIST))
         .pipe(rename('../app.js'));
@@ -61,27 +62,13 @@ gulp.task('watch', ['bundle-scripts'], function () {
  *
  */
 
-// load karma.conf.js if available, if not use a simple fallback config
+// load karma.conf.js
 var karmaConfigHolder = {};
 karmaConfigHolder.set = function(karmaConfig) {
     karmaConfigHolder.karmaConfig = karmaConfig;
 };
 
-try {
-    require('./karma.conf.js')(karmaConfigHolder);
-} catch (e) {
-    var testFiles = CONFIG.TEST + '/**/*.js';
-
-    karmaConfigHolder.karmaConfig = {
-        browsers: ['Chrome'],
-        files: [testFiles],
-        frameworks: ['jasmine', 'browserify'],
-        preprocessors: {},
-        singleRun: true
-    };
-
-    karmaConfigHolder.karmaConfig.preprocessors[testFiles] = ['browserify'];
-}
+require('./karma.conf.js')(karmaConfigHolder);
 
 gulp.task('test', function () {
     karma.start(karmaConfigHolder.karmaConfig, function (exitCode) {
