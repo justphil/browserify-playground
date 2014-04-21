@@ -1,10 +1,11 @@
 "use strict";
 
 var gulp        = require('gulp'),
-    browserify  = require('gulp-browserify'),
     rename      = require('gulp-rename'),
     inject      = require('gulp-inject'),
     clean       = require('gulp-clean'),
+    browserify  = require('browserify'),
+    source      = require('vinyl-source-stream'),
     karma       = require('karma').server;
 
 var CONFIG = {
@@ -36,8 +37,8 @@ gulp.task('clean', function () {
  *
  */
 gulp.task('bundle-scripts', ['clean'], function () {
-    var browserifyBundle = gulp.src(CONFIG.SRC + '/app.js')
-        .pipe(browserify())
+    var browserifyBundle = browserify(CONFIG.SRC + '/app.js').bundle()
+        .pipe(source('app.js'))
         .pipe(gulp.dest(CONFIG.DIST))
         .pipe(rename('../app.js'));
 
