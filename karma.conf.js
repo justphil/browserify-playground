@@ -13,7 +13,7 @@ module.exports = function (config) {
 
         // list of files / patterns to load in the browser
         files: [
-            'test/**/*.js'
+            // see: 'browserify' property
         ],
 
 
@@ -22,7 +22,17 @@ module.exports = function (config) {
 
         ],
 
-        preprocessors: {'test/**/*.js': ['browserify']},
+        // Files to browserify
+        browserify: {
+            files: [
+                "test/**/*.js"
+            ]
+        },
+
+        // Hopefully temporary hack
+        preprocessors: {
+            '/**/*.browserify': 'browserify'
+        },
 
         // test results reporter to use
         // possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
