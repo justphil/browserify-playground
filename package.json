@@ -32,6 +32,7 @@
     "gulp-clean": "^0.2.4",
     "gulp-rename": "^1.2.0",
     "gulp-inject": "^0.4.1",
+    "browserify": "^3.44.1",
     "vinyl-source-stream": "^0.1.1",
     "karma": "^0.12.6",
     "karma-jasmine": "^0.1.5",
